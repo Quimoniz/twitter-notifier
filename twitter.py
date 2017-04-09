@@ -74,13 +74,18 @@ def write_tweets(twitter_accountname, list_of_tweets):
 
 def notify_about_new_tweets(list_of_new_tweets):
     """Uses system functionality to notify the user of new tweets"""
+    perform_sleep_wait = True
     for cur_tweet in list_of_new_tweets:
         cur_delay = 5000 + int(len(cur_tweet[1]) / 40)
         tweet_timestr = datetime.fromtimestamp(cur_tweet[0]).strftime("%d. %b %H:%I:%S")
         notify_text = tweet_timestr + ":\n" + cur_tweet[1] 
-        call(["notify-send", "-c", "low", "-t", str(cur_delay), "-i", "apple-touch-icon.png", notify_text ])
-        print("Notification:" + notify_text)
-        sleep(cur_delay / 1000)
+        try:
+            call(["notify-send", "-c", "low", "-t", str(cur_delay), "-i", "apple-touch-icon.png", notify_text ])
+            print("Notification:" + notify_text)
+            if perform_sleep_wait:
+                sleep(cur_delay / 1000)
+        except KeyboardInterrupt:
+            perform_sleep_wait = False
 
 
 def main(twitter_accountname):
