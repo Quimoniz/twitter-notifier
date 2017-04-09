@@ -11,7 +11,7 @@ import sys
 
 
 def read_new_tweets(twitter_accountname):
-
+    """fetchtes tweets from twitter.com and puts timestamp and tweettext into an array."""
     url = "http://twitter.com/" + twitter_accountname
     doc = requests.get(url)
 
@@ -37,6 +37,7 @@ def read_new_tweets(twitter_accountname):
     return lots
 
 def read_old_tweets(twitter_accountname):
+    """reads in the corresponding .csv file and returns an array with the read data"""
     tweet_list = []
     my_filename = twitter_accountname + ".csv"
     if os.path.isfile(my_filename):
@@ -50,6 +51,7 @@ def read_old_tweets(twitter_accountname):
     return tweet_list
 
 def diff_on_tweet_list(old_tweet_list, new_tweet_list):
+    """returns new tweets from new_tweet_list which are not in old_tweet_list"""
     list_not_in_old_tweets = []
     for cur_new_tweet in new_tweet_list:
         found_in_both = False
@@ -63,6 +65,7 @@ def diff_on_tweet_list(old_tweet_list, new_tweet_list):
     return list_not_in_old_tweets
 
 def write_tweets(twitter_accountname, list_of_tweets):
+    """writes a .csv file with the list of tweets"""
     with open(twitter_accountname + ".csv", 'w') as tweet_file:
         for cur_tweet in list_of_tweets:
             tweet_file.write(str(cur_tweet[0]) + "," + cur_tweet[1])
@@ -70,6 +73,7 @@ def write_tweets(twitter_accountname, list_of_tweets):
                 tweet_file.write("\n")
 
 def notify_about_new_tweets(list_of_new_tweets):
+    """Uses system functionality to notify the user of new tweets"""
     for cur_tweet in list_of_new_tweets:
         cur_delay = 5000 + int(len(cur_tweet[1]) / 40)
         tweet_timestr = datetime.fromtimestamp(cur_tweet[0]).strftime("%d. %b %H:%I:%S")
@@ -91,8 +95,7 @@ def main(twitter_accountname):
 
     if len(list_of_new_tweets) > 0:
         notify_about_new_tweets(list_of_new_tweets)
-#    for name, free_lots in lots:
-#        print("%s: %s" % (name, free_lots))
+
 
 
 if __name__ == "__main__":
