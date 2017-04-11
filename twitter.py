@@ -72,20 +72,25 @@ def write_tweets(twitter_accountname, list_of_tweets):
             if cur_tweet[1].rfind("\n") < (len(cur_tweet[1]) - 1):
                 tweet_file.write("\n")
 
-def notify_about_new_tweets(list_of_new_tweets):
+def notify_about_new_tweets(twitter_accountname, list_of_new_tweets):
     """Uses system functionality to notify the user of new tweets"""
     perform_sleep_wait = True
+    path_to_image = get_cwd() + "/apple-touch-icon.png"
     for cur_tweet in list_of_new_tweets:
-        cur_delay = 5000 + int(len(cur_tweet[1]) / 40)
+        cur_delay = 11000 + int(len(cur_tweet[1]) / 40)
         tweet_timestr = datetime.fromtimestamp(cur_tweet[0]).strftime("%d. %b %H:%I:%S")
-        notify_text = tweet_timestr + ":\n" + cur_tweet[1] 
+        notify_title = "@" + twitter_accountname + " " + tweet_timestr + ":"
+        notify_text = cur_tweet[1] 
         try:
-            call(["notify-send", "-c", "low", "-t", str(cur_delay), "-i", "apple-touch-icon.png", notify_text ])
-            print("Notification:" + notify_text)
+            call(["notify-send", "-c", "low", "-t", str(cur_delay - 500), "-i", path_to_image, notify_title, notify_text ])
+            print("Notification: " + notify_title + " " + notify_text)
             if perform_sleep_wait:
                 sleep(cur_delay / 1000)
         except KeyboardInterrupt:
             perform_sleep_wait = False
+
+def get_cwd():
+    return os.path.dirname(os.path.realpath(__file__))
 
 
 def main(twitter_accountname):
@@ -99,8 +104,7 @@ def main(twitter_accountname):
     write_tweets(twitter_accountname, old_tweets + list_of_new_tweets)
 
     if len(list_of_new_tweets) > 0:
-        notify_about_new_tweets(list_of_new_tweets)
-
+        notify_about_new_tweets(twitter_accountname, list_of_new_tweets)
 
 
 if __name__ == "__main__":
