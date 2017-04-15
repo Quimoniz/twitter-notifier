@@ -43,11 +43,15 @@ def read_old_tweets(twitter_accountname):
     if os.path.isfile(my_filename):
         with open(my_filename, 'r') as myfile:
             for curline in myfile:
-                pos_of_comma = curline.find(',')
-                if pos_of_comma > -1:
-                    tweet_timestamp = int(curline[0:pos_of_comma])
-                    tweet_text = curline[pos_of_comma + 1:]
-                    tweet_list.append((tweet_timestamp, tweet_text))
+                try:
+                    pos_of_comma = curline.find(',')
+                    if pos_of_comma > -1:
+                        tweet_timestamp = int(curline[0:pos_of_comma])
+                        tweet_text = curline[pos_of_comma + 1:]
+#TODO: unescape \n 
+                        tweet_list.append((tweet_timestamp, tweet_text))
+                except ValueError:
+                    pass
     return tweet_list
 
 def diff_on_tweet_list(old_tweet_list, new_tweet_list):
@@ -68,6 +72,7 @@ def write_tweets(twitter_accountname, list_of_tweets):
     """writes a .csv file with the list of tweets"""
     with open(twitter_accountname + ".csv", 'w') as tweet_file:
         for cur_tweet in list_of_tweets:
+#TODO: escape newlines with \n
             tweet_file.write(str(cur_tweet[0]) + "," + cur_tweet[1])
             if cur_tweet[1].rfind("\n") < (len(cur_tweet[1]) - 1):
                 tweet_file.write("\n")
