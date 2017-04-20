@@ -36,6 +36,40 @@ def read_new_tweets(twitter_accountname):
         print("No tweets found in HTML")
     return lots
 
+def escape_str(orig_str):
+    escaped_str = []
+    for cur_char in orig_str:
+        if "\n" == cur_char:
+            escaped_str.append('\\')
+            escaped_str.append("n")
+        elif "\\" == cur_char:
+            escaped_str.append('\\')
+            escaped_str.append('\\')
+        else:
+            escaped_str.append(cur_char)
+    return ''.join(escaped_str)
+
+def unescape_str(orig_str):
+    unescaped_str = []
+    encountered_backslash = False
+    for cur_char in orig_str:
+        if encountered_backslash:
+            if "n" == cur_char:
+                unescaped_str.append("\n")
+            elif "\\" == cur_char:
+                unescaped_str.append("\\")
+            else:
+                unescaped_str.append("\\")
+                unescaped_str.append(cur_char)
+            encountered_backslash = False
+        else:
+            if "\\" == cur_char:
+                encountered_backslash = True
+            else:
+                unescaped_str.append(cur_char)
+    return ''.join(unescaped_str)
+       
+
 def read_old_tweets(twitter_accountname):
     """reads in the corresponding .csv file and returns an array with the read data"""
     tweet_list = []
@@ -47,8 +81,7 @@ def read_old_tweets(twitter_accountname):
                     pos_of_comma = curline.find(',')
                     if pos_of_comma > -1:
                         tweet_timestamp = int(curline[0:pos_of_comma])
-                        tweet_text = curline[pos_of_comma + 1:]
-#TODO: unescape \n 
+                        tweet_text = unescape_str(curline[pos_of_comma + 1:])
                         tweet_list.append((tweet_timestamp, tweet_text))
                 except ValueError:
                     pass
@@ -72,10 +105,8 @@ def write_tweets(twitter_accountname, list_of_tweets):
     """writes a .csv file with the list of tweets"""
     with open(twitter_accountname + ".csv", 'w') as tweet_file:
         for cur_tweet in list_of_tweets:
-#TODO: escape newlines with \n
-            tweet_file.write(str(cur_tweet[0]) + "," + cur_tweet[1])
-            if cur_tweet[1].rfind("\n") < (len(cur_tweet[1]) - 1):
-                tweet_file.write("\n")
+            tweet_file.write(str(cur_tweet[0]) + "," + escape_str(cur_tweet[1]))
+            tweet_file.write("\n")
 
 def notify_about_new_tweets(twitter_accountname, list_of_new_tweets):
     """Uses system functionality to notify the user of new tweets"""
