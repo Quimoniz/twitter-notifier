@@ -13,7 +13,12 @@ import sys
 def read_new_tweets(twitter_accountname):
     """fetchtes tweets from twitter.com and puts timestamp and tweettext into an array."""
     url = "http://twitter.com/" + twitter_accountname
-    doc = requests.get(url)
+    doc = "";
+    try:
+        doc = requests.get(url)
+    except KeyboardInterrupt:
+        sys.exit()
+
 
     #write backup
     myfile = open(twitter_accountname + '.html', 'w')
