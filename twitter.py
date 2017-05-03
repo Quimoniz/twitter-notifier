@@ -113,28 +113,33 @@ def write_tweets(twitter_accountname, list_of_tweets):
             tweet_file.write(str(cur_tweet[0]) + "," + escape_str(cur_tweet[1]))
             tweet_file.write("\n")
 
-def notify_about_new_tweets(twitter_accountname, list_of_new_tweets):
+def notify_about_new_tweets(twitter_accountname, list_of_new_tweets, batch_mode):
     """Uses system functionality to notify the user of new tweets"""
     perform_sleep_wait = True
+    first_iteration = True
     path_to_image = get_cwd() + "/apple-touch-icon.png"
     for cur_tweet in list_of_new_tweets:
         cur_delay = 11000 + int(len(cur_tweet[1]) / 40)
         tweet_timestr = datetime.fromtimestamp(cur_tweet[0]).strftime("%d. %b %H:%I:%S")
         notify_title = "@" + twitter_accountname + " " + tweet_timestr + ":"
-        notify_text = cur_tweet[1] 
-        try:
+        notify_text = cur_tweet[1]
+        if not batch_mode:
+            try:
+                if perform_sleep_wait:
+                    if first_iteration:
+                        first_iteration = False
+                    else:
+                        sleep(cur_delay / 1000)
+            except KeyboardInterrupt:
+                perform_sleep_wait = False
             call(["notify-send", "-c", "low", "-t", str(cur_delay - 500), "-i", path_to_image, notify_title, notify_text ])
-            print("Notification: " + notify_title + " " + notify_text)
-            if perform_sleep_wait:
-                sleep(cur_delay / 1000)
-        except KeyboardInterrupt:
-            perform_sleep_wait = False
+        print("Notification: " + notify_title + " " + notify_text)
 
 def get_cwd():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def main(twitter_accountname):
+def main(twitter_accountname, batch_mode):
 
     current_tweets = read_new_tweets(twitter_accountname)
 
@@ -145,12 +150,26 @@ def main(twitter_accountname):
     write_tweets(twitter_accountname, old_tweets + list_of_new_tweets)
 
     if len(list_of_new_tweets) > 0:
-        notify_about_new_tweets(twitter_accountname, list_of_new_tweets)
+        notify_about_new_tweets(twitter_accountname, list_of_new_tweets, batch_mode)
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        main(sys.argv[1])
+        batch_mode = False
+        list_of_non_hyphen_arguments = []
+        i = 0
+        for cur_arg in sys.argv:
+            if i > 0:
+                if cur_arg[0] == "-":
+                    if cur_arg == "-b":
+                        batch_mode = True
+                else:
+                    list_of_non_hyphen_arguments.append(cur_arg);
+            i = i + 1
+        if len(list_of_non_hyphen_arguments) > 0:
+            main(list_of_non_hyphen_arguments[0], batch_mode)
+        else:
+            print("Twitter accountname required. None given. Aborting.")
     else:
         print("Twitter accountname required. None given. Aborting.")
 
