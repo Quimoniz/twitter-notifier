@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #!/usr/bin/env python
 #requirement BeautifulSoup (http://www.crummy.com/software/BeautifulSoup)
 # get it via pip install beautifulsoup4
@@ -14,8 +15,13 @@ def read_new_tweets(twitter_accountname):
     """fetchtes tweets from twitter.com and puts timestamp and tweettext into an array."""
     url = "http://twitter.com/" + twitter_accountname
     doc = "";
+    additional_headers = {
+      "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5"
+    }
     try:
-        doc = requests.get(url)
+        doc = requests.get(url, headers=additional_headers)
     except KeyboardInterrupt:
         sys.exit()
 
